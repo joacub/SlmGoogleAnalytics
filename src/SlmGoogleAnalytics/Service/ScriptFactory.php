@@ -39,22 +39,31 @@
  */
 namespace SlmGoogleAnalytics\Service;
 
+use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 class ScriptFactory implements FactoryInterface
 {
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $container)
     {
-        $config     = $serviceLocator->get('config');
+        return $this($container, ModuleManager::class);
+
+    }
+
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
+    {
+        $config     = $container->get('config');
         $scriptName = $config['google_analytics']['script'];
 
-        $script = $serviceLocator->get($scriptName);
+        $script = $container->get($scriptName);
         /* @var $script \SlmGoogleAnalytics\View\Helper\Script\ScriptInterface */
-        $ga     = $serviceLocator->get('google-analytics');
+        $ga     = $container->get('google-analytics');
 
         $script->setTracker($ga);
 
         return $script;
     }
+
+
 }
